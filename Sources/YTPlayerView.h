@@ -141,6 +141,17 @@ typedef void (^YTPlaybackQualityCompletionHandler)(YTPlaybackQuality result,
  */
 - (nullable UIView *)playerViewPreferredInitialLoadingView:(nonnull YTPlayerView *)playerView;
 
+/**
+ * Picture in picture state delegate.
+ * enable: picture-in-picture
+ * disable: inline or etc, ...
+ */
+- (void)playerView:(nonnull YTPlayerView *)playerView didChangeToStatePictureInPicture:(NSString * _Nullable)state;
+
+@end
+
+@interface ModifySafeAreaWKWebView : WKWebView
+@property(nonatomic) UIEdgeInsets mutableSafeAreaInset;
 @end
 
 /**
@@ -152,7 +163,7 @@ typedef void (^YTPlaybackQualityCompletionHandler)(YTPlaybackQuality result,
  */
 @interface YTPlayerView : UIView
 
-@property(nonatomic, nullable, readonly) WKWebView *webView;
+@property(nonatomic, nullable, readonly) ModifySafeAreaWKWebView *webView;
 
 /** A delegate to be notified on playback events. */
 @property(nonatomic, weak, nullable) id<YTPlayerViewDelegate> delegate;
@@ -169,7 +180,7 @@ typedef void (^YTPlaybackQualityCompletionHandler)(YTPlaybackQuality result,
  * @param videoId The YouTube video ID of the video to load in the player view.
  * @return YES if player has been configured correctly, NO otherwise.
  */
-- (BOOL)loadWithVideoId:(nonnull NSString *)videoId;
+- (BOOL)loadWithVideoId:(nonnull NSString *)videoId isEnablePIP:(BOOL)pipEnabled ;
 
 /**
  * This method loads the player with the given playlist ID.
@@ -184,7 +195,7 @@ typedef void (^YTPlaybackQualityCompletionHandler)(YTPlaybackQuality result,
  * @param playlistId The YouTube playlist ID of the playlist to load in the player view.
  * @return YES if player has been configured correctly, NO otherwise.
  */
-- (BOOL)loadWithPlaylistId:(nonnull NSString *)playlistId;
+- (BOOL)loadWithPlaylistId:(nonnull NSString *)playlistId isEnablePIP:(BOOL)pipEnabled ;
 
 /**
  * This method loads the player with the given video ID and player variables. Player variables
@@ -207,7 +218,7 @@ typedef void (^YTPlaybackQualityCompletionHandler)(YTPlaybackQuality result,
  * @param playerVars An NSDictionary of player parameters.
  * @return YES if player has been configured correctly, NO otherwise.
  */
-- (BOOL)loadWithVideoId:(nonnull NSString *)videoId playerVars:(nullable NSDictionary *)playerVars;
+- (BOOL)loadWithVideoId:(nonnull NSString *)videoId playerVars:(nullable NSDictionary *)playerVars isEnablePIP:( BOOL)pipEnabled;
 
 /**
  * This method loads the player with the given playlist ID and player variables. Player variables
@@ -232,7 +243,8 @@ typedef void (^YTPlaybackQualityCompletionHandler)(YTPlaybackQuality result,
  * @return YES if player has been configured correctly, NO otherwise.
  */
 - (BOOL)loadWithPlaylistId:(nonnull NSString *)playlistId
-                playerVars:(nullable NSDictionary *)playerVars;
+                playerVars:(nullable NSDictionary *)playerVars
+               isEnablePIP:(BOOL)pipEnabled;
 
 /**
  * This method loads an iframe player with the given player parameters. Usually you may want to use
@@ -245,7 +257,7 @@ typedef void (^YTPlaybackQualityCompletionHandler)(YTPlaybackQuality result,
  *                               whether a single video or playlist is being loaded.
  * @return YES if successful, NO if not.
  */
-- (BOOL)loadWithPlayerParams:(nullable NSDictionary *)additionalPlayerParams;
+- (BOOL)loadWithPlayerParams:(nullable NSDictionary *)additionalPlayerParams isEnablePIP:( BOOL)pipEnabled;
 
 #pragma mark - Player controls
 
@@ -646,5 +658,27 @@ typedef void (^YTPlaybackQualityCompletionHandler)(YTPlaybackQuality result,
  * Intended to use for testing, should not be used in production code.
  */
 - (void)removeWebView;
+
+#pragma mark - Safe Area
+
+- (void)mutableSafeArea: (UIEdgeInsets)inset;
+
+#pragma mark - Captions
+
+- (void)captionTracks:(_Nullable YTArrayCompletionHandler)completionHandler;
+- (void)captionSelcted:(nullable void (^)(NSDictionary * _Nullable result, NSError * _Nullable error))completionHandler;
+- (void)captions:(BOOL)isTurnOn language:(NSString * _Nonnull)language completion:(nullable void (^)(id _Nullable result, NSError * _Nullable error))completionHandler;
+- (void)captionSize:(NSInteger)size completion:(_Nullable YTStringCompletionHandler)completionHandler;
+
+#pragma mark - Ad
+
+- (void)clearAdvertise;
+
+#pragma mark - Picture in Picture
+
+- (void)requestPictureInPictureState:(_Nullable YTStringCompletionHandler)completionHandler;
+- (void)pictureInPicture;
+- (void)requestPictureInPicture;
+- (void)releasePictureInPicture;
 
 @end
